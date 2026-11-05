@@ -1,0 +1,109 @@
+# LeadCrawler settings. Unknown keys are rejected, so a typo fails loudly.
+
+identity:
+  bot_name: LeadCrawler
+  # REQUIRED: a real inbox you read. Sent with every request so site owners can reach you.
+  # The crawler refuses to start until you change this.
+  contact_email: capricornking217@gmail.com
+  # Optional page explaining what your crawler does.
+  info_url: null
+
+crawl:
+  max_depth: 2
+  max_pages_per_domain: 30
+  max_links_per_page: 200
+  # Seeds on these sites are rejected: they aren't a business's own website.
+  skip_domains:
+    - facebook.com
+    - instagram.com
+    - linkedin.com
+    - twitter.com
+    - x.com
+    - tiktok.com
+    - youtube.com
+    - google.com
+    - wa.me
+
+politeness:
+  min_delay: 1.0 # seconds between requests to one site (minimum allowed: 1.0)
+  max_delay: 3.0
+  concurrency: 5 # sites crawled at once; each site only ever gets one request at a time
+  max_retries: 3
+  backoff_base: 2.0
+  backoff_max: 60.0
+  max_retry_after: 120.0 # a longer Retry-After means we give up on that page
+  max_consecutive_blocks: 3 # stop hitting a site after this many blocks/failures in a row
+  max_crawl_delay: 30.0 # skip sites whose robots.txt Crawl-delay is longer than this
+
+fetch:
+  timeout: 20.0
+  max_bytes: 5000000
+  max_redirects: 5
+  allow_private_hosts: false # never reach localhost/LAN addresses unless testing
+
+browser:
+  enabled: true # Playwright fallback, used only for JavaScript-rendered pages
+  concurrency: 2
+  timeout: 30.0
+  max_renders_per_domain: 5
+  min_text_chars: 200 # static pages with less visible text than this may need rendering
+
+target:
+  # A label for your own reference. Nothing here limits which companies or countries are crawled.
+  location: Worldwide
+  # Each site's country is worked out from its seed, domain and page content, so local phone
+  # numbers read correctly. These two are only used when a site gives no clue at all.
+  default_region: US
+  fallback_regions: [GB] # tried, with lower confidence, if default_region finds no number
+  # Used when no keyword below matches. Companies are never dropped for lacking a category.
+  default_category: Other
+  # Help spot addresses in page text. Every country name is already recognised,
+  # so this is only for cities or regions you're targeting, like [Houston, Toronto].
+  location_hints: []
+  # Used to label a company when its site doesn't declare a category. This only sets the label:
+  # add or rename anything freely. If two categories tie, the one listed first wins.
+  category_keywords:
+    Oil & Gas: [oil and gas, oil & gas, petroleum, upstream, midstream, downstream, drilling, oilfield, refinery, pipeline, lng, offshore]
+    Energy & Utilities: [energy, solar, wind farm, renewable, power generation, electricity, utility, nuclear, hydropower]
+    Mining & Metals: [mining, quarry, mineral, steel mill, metals, smelting]
+    General Contracting: [general contractor, contractor, contracting, subcontractor, design-build, bauunternehmen]
+    Construction: [construction, builder, civil engineering, roofing, concrete, demolition, excavation, scaffolding]
+    Trades (HVAC, Plumbing, Electrical): [hvac, plumbing, plumber, electrician, electrical contractor, heating and cooling, air conditioning]
+    Architecture & Engineering: [architect, architecture, engineering firm, structural engineering, consulting engineer, surveying]
+    Automotive: [automotive, auto parts, auto repair, car dealership, dealership, vehicle, car dealer, auto body, oem, tire, tyre, truck dealer]
+    Aerospace & Defense: [aerospace, aviation, defense, defence, aircraft]
+    Manufacturing: [manufacturer, manufacturing, factory, fabrication, machining, cnc, injection molding, industrial equipment, assembly line, hersteller]
+    Chemicals & Plastics: [chemical, plastics, polymer, coatings, adhesive]
+    Food & Beverage Production: [food processing, food manufacturer, brewery, distillery, winery, bottling, beverage]
+    Agriculture: [agriculture, farming, agribusiness, livestock, crop, fertilizer]
+    Logistics & Transport: [logistics, freight, haulage, courier, shipping, trucking, delivery service, warehousing, supply chain, spedition]
+    Real Estate: [real estate, realtor, property, properties, estate agent, property management, immobilien]
+    Restaurants & Food Service: [restaurant, cuisine, menu, eatery, dining, catering, cafe, bistro]
+    Hospitality & Travel: [hotel, resort, travel agency, tour operator, hospitality, lodging]
+    Retail & E-commerce: [retail, retailer, online store, e-commerce, ecommerce, wholesale, wholesaler, distributor]
+    Healthcare: [hospital, clinic, healthcare, medical, dental, dentist, physician, pharmacy, nursing, veterinary]
+    Pharma & Biotech: [pharmaceutical, biotech, life sciences, medical device]
+    Banking & Finance: [bank, banking, financial services, fintech, investment, wealth management, lending, mortgage, private equity]
+    Insurance: [insurance, insurer, underwriting]
+    Accounting: [accounting, accountant, bookkeeping, tax advisory, audit, cpa]
+    Legal: [law firm, lawyer, attorney, solicitor, legal services, barrister, rechtsanwalt]
+    Software & IT: [software, saas, it services, cloud, cybersecurity, web development, app development, managed services, data center]
+    Telecommunications: [telecom, telecommunications, broadband, internet provider, fiber]
+    Marketing & Media: [marketing agency, advertising, digital marketing, seo, public relations, media company, branding, publishing]
+    Consulting & Business Services: [consulting, consultancy, consultant, staffing, recruitment, outsourcing, business services]
+    Education & Training: [school, university, college, training provider, education, academy, tutoring]
+    Facilities & Cleaning: [cleaning service, janitorial, facilities management, landscaping, pest control, security services]
+    Nonprofit: [nonprofit, non-profit, charity, foundation, ngo]
+    Government: [government, municipality, public sector, county council]
+
+storage:
+  # Kept outside the project folder: a database rewritten after every page
+  # clashes with OneDrive sync. Exports are fine to keep in the project.
+  db_path: ~/.leadcrawler/leads.db
+  export_dir: exports
+  # Columns in your lead files. Everything else is still saved in the database, so you can
+  # add any of these later and re-export without crawling again: business_name, address,
+  # country, category, description, facebook, instagram, linkedin, x, tiktok, email_type,
+  # quality_score, crawl_status, or the matching *_source column such as email_source.
+  export_columns: [email, other_emails]
+  log_file: null
